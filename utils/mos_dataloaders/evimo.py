@@ -1,0 +1,199 @@
+import os
+import random
+import cv2
+import numpy as np
+import h5py
+
+import torch
+from torch.utils.data import Dataset
+
+import sys
+sys.path.append('.')
+sys.path.append('utils')
+
+VALIDS = ['train/box',
+          'train/floor',
+          'train/table',
+          'train/tabletop',
+          'train/tabletop-egomotion',
+          'train/wall',
+          'eval/box',
+          'eval/floor',
+          'eval/table',
+          'eval/tabletop',
+          'eval/fast',
+          'eval/wall', ]
+
+
+class EVIMOv1(Dataset):
+    def __init__(self, cfgs):
+        assert os.path.isdir(cfgs.root_dir)
+
+        self.cfgs = cfgs
+        self.root_dir = str(cfgs.root_dir)
+        self.split = str(cfgs.split)
+
+        self.seq_length = int(cfgs.seq_length)
+        self.min_pixels = int(cfgs.min_pixels)
+        assert self.seq_length >= 1
+
+        self.preprocess_dir = os.path.join(self.root_dir, 'emos_preprocess')
+
+        self.has_ev = False
+        if hasattr(self.cfgs, 'has_ev') and self.cfgs.has_ev:
+            self.has_ev = True
+            self.event_bins = cfgs.event_bins
+            self.event_polarity = cfgs.event_polarity
+
+        if hasattr(cfgs, 'data_seq'):
+            self.seqnames = cfgs.data_seq
+            print('for {} seqs only'.format(self.seqnames))
+        else:
+            self.seqnames = []
+            if self.split.startswith('full') or self.split.startswith('train'):
+                for seq in VALIDS:
+                    seq_folder = os.path.join(self.preprocess_dir, seq)
+                    if 'train' in seq and os.path.isdir(seq_folder):
+                        subseqs = [os.path.join(seq, sub) for sub in os.listdir(seq_folder)]
+                        self.seqnames += subseqs
+
+            if self.split.startswith('full') or self.split.startswith('val') or self.split.startswith('eval'):
+                for seq in VALIDS:
+                    seq_folder = os.path.join(self.preprocess_dir, seq)
+                    if 'eval' in seq and os.path.isdir(seq_folder):
+                        subseqs = [os.path.join(seq, sub) for sub in os.listdir(seq_folder)]
+                        self.seqnames += subseqs
+
+        self.indices = []
+        for seqname in self.seqnames:
+            seq_path = os.path.join(self.preprocess_dir, seqname)
+            assert os.path.isdir(seq_path)
+            files = sorted([f for f in os.listdir(seq_path) if f.endswith('.hdf5')])
+            total_length = len(files) - self.seq_length
+            mov_valid = np.loadtxt(os.path.join(seq_path, 'valid.txt'), dtype=(str))
+            mov_valid = dict(zip(mov_valid[:, 0], mov_valid[:, 1].astype(bool)))
+            for index in range(total_length):
+                valid_flag = True
+                for seq_idx in range(self.seq_length):
+                    img_name = "img_{}.png".format(int(files[index+seq_idx].split('.')[0]))
+                    assert img_name in mov_valid.keys()
+                    if not mov_valid[img_name]:
+                        valid_flag = False
+                        break
+                if valid_flag:
+                    self.indices.append([seqname, \
+                                        [int(files[index+seq_idx].split('.')[0]) \
+                                        for seq_idx in range(self.seq_length+1)], \
+                                        self.seq_length])
+
+    def __len__(self):
+        return len(self.indices)
+
+    def open_preprocess_h5py(self, filename, is_img2=True, is_event=True):
+        assert os.path.isfile(filename), '{} not exist!'.format(filename)
+        h5file = h5py.File(filename, 'r')
+        image1 = np.array(h5file["image1"])
+        mov_seg = np.array(h5file["mov_seg"])
+
+        image2 = None
+        if is_img2:
+            try:
+                image2 = np.array(h5file["image2"])
+            except OSError as e:
+                print(f"Error reading image2 from {filename}: {e}")
+
+        event_voxel = None
+        if is_event:
+            try:
+                event_voxel = np.array(h5file["event_voxel"])
+            except OSError as e:
+                print(f"Error reading event_voxel from {filename}: {e}")
+        
+        h5file.close()
+
+        return image1, image2, mov_seg, event_voxel
+
+    def __getitem__(self, i):
+
+        root = self.root_dir
+        seq = self.indices[i][0]
+        idxs = self.indices[i][1]
+        seq_length = self.indices[i][2]
+        data_dict = {'root': root, 'seq': seq, 'index': idxs, 'seq_length': seq_length}
+        data_dict['keyname'] = os.path.join(seq, '{0:05d}'.format(idxs[0]))
+
+        images = []
+        event_voxels = [] if self.has_ev else None
+        mov_segs = []
+        bboxes = []  # To store bounding boxes for each frame
+
+        image1, image2 = None, None
+
+        for i in range(len(idxs)-1):
+            idx1 = idxs[i]
+            is_last = (i == len(idxs)-2)
+
+            preprocess_path = os.path.join(self.preprocess_dir, seq, '{0:05d}.hdf5'.format(idx1))
+            assert os.path.isfile(preprocess_path)
+            image1, image2, mov_seg, event_voxel = \
+                self.open_preprocess_h5py(preprocess_path, is_img2=is_last, is_event=self.has_ev)
+
+            images.append(image1[:, :, np.newaxis].repeat(3, axis=-1))
+            if is_last:
+                images.append(image2[:, :, np.newaxis].repeat(3, axis=-1))
+            mov_segs.append(mov_seg)
+
+            if self.has_ev:
+                event_voxels.append(event_voxel)
+        
+
+        # id align
+        mov_segs = np.dstack(mov_segs)
+        processed_mov_segs = mov_segs.copy()
+        act_id = 0
+        max_id = mov_segs.max()
+        obj_flag = np.zeros(max_id+1)
+        for frame in range(seq_length):
+            for obj_id in range(1, max_id+1):
+                if obj_flag[obj_id] != 0:
+                    continue
+                count = np.count_nonzero(mov_segs[:, :, frame] == obj_id)
+                if count > 0 and count >= self.min_pixels:
+                    act_id += 1
+                    processed_mov_segs[mov_segs == obj_id] = act_id
+                    obj_flag[obj_id] = 1
+                elif count > 0 and count < self.min_pixels:
+                    processed_mov_segs[mov_segs == obj_id] = 0
+                    obj_flag[obj_id] = 1
+
+        # Generate bbox from filtered mask
+        for frame in range(seq_length):
+            unique_ids = np.unique(processed_mov_segs[:, :, frame])
+            frame_bboxes = []
+            for obj_id in unique_ids:
+                if obj_id == 0:  # Skip background
+                    continue
+                mask = (processed_mov_segs[:, :, frame] == obj_id).astype(np.uint8)
+                y_indices, x_indices = np.where(mask > 0)
+                if len(y_indices) > 0 and len(x_indices) > 0:
+                    x_min, y_min = x_indices.min(), y_indices.min()
+                    x_max, y_max = x_indices.max(), y_indices.max()
+                    frame_bboxes.append([x_min, y_min, x_max, y_max])
+            bboxes.append(torch.tensor(frame_bboxes, dtype=torch.float32))
+
+            # Check for inconsistency
+            if len(frame_bboxes) != len(unique_ids) - 1:  # Exclude background
+                print(f"Inconsistency detected in seq {seq}, frame {frame}: "
+                      f"{len(frame_bboxes)} bboxes vs {len(unique_ids) - 1} instances")
+
+        images = np.concatenate(images, axis=-1)
+        data_dict['images'] = images
+
+        if self.has_ev:
+            event_voxels = np.dstack(event_voxels)
+            data_dict['event_voxels'] = event_voxels
+
+        data_dict['mov_segs'] = processed_mov_segs
+        data_dict['gt_bboxes'] = bboxes
+
+        return data_dict

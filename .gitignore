@@ -1,0 +1,12 @@
+AGENTS.md
+datasets/
+logs/
+.vscode
+__pycache__/
+*.pyc
+
+# Config files - only keep default.yaml, mousesis.yaml, sevd.yaml in version control
+conf/*
+!conf/default.yaml
+!conf/mousesis.yaml
+!conf/sevd.yaml

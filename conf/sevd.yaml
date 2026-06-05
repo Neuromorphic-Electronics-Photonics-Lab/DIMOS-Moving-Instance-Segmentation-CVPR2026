@@ -1,0 +1,78 @@
+_base: default.yaml
+
+trainset:
+  name: sevd
+  root_dir: datasets/sevd
+  processed_dir: emos_preprocess
+  split: train
+  seq_length: 2
+  min_pixels: 50
+
+  n_workers: 16
+  augmentation:
+    resized: [384, 512]
+    min_pixels: 50
+    max_obj_num: 35
+    crop_size: [384, 512]
+    random_gray:
+      enabled: false
+
+valset:
+  n_workers: 16
+  augmentation:
+    resized: [384, 512]
+    enabled: false
+    min_pixels: 50
+    max_obj_num: 35
+    crop_size: [384, 512]
+  name: sevd
+  root_dir: datasets/sevd
+  processed_dir: emos_preprocess
+  split: val
+  min_pixels: 50
+
+testset:
+  n_workers: 4
+  augmentation:
+    resized: [384, 512]
+    enabled: false
+    min_pixels: 50
+    max_obj_num: 35
+    crop_size: [384, 512]
+  name: sevd
+  root_dir: datasets/sevd
+  split: test
+  min_pixels: 50
+  seq_length: 1
+  has_ev: true
+  event_bins: 5
+  event_polarity: true
+
+metric:
+  type: IDMos
+  names: [mask, iou, bbox] # [mask, iou, coco, bbox]
+
+model:
+  batch_size: 16
+  encoder: resnet50
+
+  max_obj_num: 35
+  decoder_num_queries: 50
+  pred_score_thr: 0.1
+
+  loss: [cls, dice, focal, unflow, contrast, bbox, adv_loss_texture, adv_loss_motion, modality_recon] # , bbox
+  loss_weights: [1.0, 1.0, 20.0, 0.5, 10.0, 0.004, 0.1, 0.1, 10.0] # , 1.0
+  da_gamma: 10.0
+  max_steps: 800000
+  optimize_D_per_step: 2
+
+training:
+  max_steps: 800000
+  valid_every_steps: [20000, 10000, 700000]
+  lr:
+    init_value: 0.0001
+    da_lr: 0.000025
+
+log:
+  save_ckpt_every_steps: [20000, 10000, 700000]
+

@@ -1,0 +1,112 @@
+trainset:
+  type: mos
+  n_workers: 4
+  drop_last: true
+
+  name: kubric
+  root_dir: datasets/ekubric
+  split: train
+  seq_length: 2
+  min_pixels: 1000
+  has_ev: true
+  event_bins: 5
+  event_polarity: true
+
+  augmentation:
+    enabled: true
+    min_pixels: 1000
+    max_obj_num: 20
+    crop_size: [540, 960]  
+
+    random_scale:
+      enabled: true
+      min_scale: 0.6
+      max_scale: 1.5
+    random_crop:
+      enabled: true
+    random_color_jitter:
+      enabled: true
+      prob: 0.5
+    random_gray:
+      enabled: true
+      prob: 0.2
+    random_blur:
+      enabled: true
+      prob: 0.3
+      kernel_size: 5
+    random_horizontal_flip:
+      enabled: true
+      prob: 0.5
+    random_vertical_flip:
+      enabled: true
+      prob: 0.5
+
+valset:
+  type: mos
+  n_workers: 2
+
+  augmentation:
+    enabled: false
+    min_pixels: 1000
+    max_obj_num: 20
+    crop_size: [720, 1280]
+
+  name: kubric
+  root_dir: datasets/ekubric
+  split: val
+  seq_length: 1
+  min_pixels: 1000
+
+  has_ev: true
+  event_bins: 5
+  event_polarity: true
+
+metric:
+  type: IDMos
+  names: [mask, iou, coco, epe1px]
+
+model:
+  batch_size: 16
+
+  engine: None
+  name: dimos
+  encoder: resnet50
+  encoder_dim: [256, 512, 1024]
+  projected_dim: 256
+  flow_branch_split: true
+  pred_length: 2
+
+  max_obj_num: 20
+  decoder_num_queries: 100
+
+  event_bins: 5
+  event_polarity: true
+
+  loss: [cls, dice, focal, flowl1, contrast]
+  loss_weights: [1.0, 1.0, 20.0, 1.0, 10.0]
+
+training:
+  max_steps: 200000
+  valid_every_steps: [5000, 2000, 150000] # after 150000, valid_every_steps change to 2000
+  optimizer: adam
+  lr:
+    scheduler: 'OneCycleLR'
+    init_value: 0.0001
+    momentum: 0.9
+  weight_decay: 0.000001
+  bias_decay: 0.0
+
+log:
+  dir: logs
+  run_name: '' # default: model name + config + max_mode
+  show_summary_every_steps: 200
+  save_imagesummary_every_steps: 2000
+  save_ckpt: true
+  save_ckpt_every_steps: [5000, 2000, 150000]
+  save_summary_every_steps: 200
+
+ckpt:
+  path: null
+  resume: false
+
+amp: false
