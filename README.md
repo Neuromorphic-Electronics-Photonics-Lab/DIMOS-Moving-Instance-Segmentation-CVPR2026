@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 ### MouseSIS
 
-> Download link: [TBA]
+> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://1drv.ms/f/c/850084079b43c32d/IgAvrIY9Q_0fTrVJX40nEm_RAS6abFl2_m0aOHU25vo9koc?e=KdmfTs)
 
 Organize the dataset as follows:
 
@@ -67,7 +67,7 @@ datasets/MouseSIS/
 
 ### SEVD
 
-> Download link: [TBA]
+> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://1drv.ms/f/c/850084079b43c32d/IgAvrIY9Q_0fTrVJX40nEm_RAS6abFl2_m0aOHU25vo9koc?e=KdmfTs)
 
 Organize the dataset as follows:
 
@@ -93,6 +93,19 @@ datasets/sevd/
 
 > Download link: [TBA]
 > Training and inference instructions for EVIMO will be added soon.
+
+---
+
+## Model Weights
+
+Pretrained weights for MouseSIS and SEVD are available via the following links (EVIMO weights will be released at a later date):
+
+| Dataset   | Baidu Netdisk | OneDrive |
+|-----------|--------------|----------|
+| MouseSIS  | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://1drv.ms/f/c/850084079b43c32d/IgB4zS-Z9iWQSZEOAtWn9T5-Afy_9w-u5JKS1LsyTPamwSE?e=uRVR7m) |
+| SEVD      | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://1drv.ms/f/c/850084079b43c32d/IgB4zS-Z9iWQSZEOAtWn9T5-Afy_9w-u5JKS1LsyTPamwSE?e=uRVR7m) |
+
+Place the downloaded checkpoint files under `logs/<run_name>/ckpts/`.
 
 ---
 
