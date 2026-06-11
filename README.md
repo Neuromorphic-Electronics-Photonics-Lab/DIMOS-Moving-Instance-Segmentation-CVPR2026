@@ -177,11 +177,11 @@ If you find this work useful, please consider citing:
 
 ```bibtex
 @inproceedings{huang2026dimos,
-  title     = {DIMOS: Disentangling Instance-level Moving Object Segmentation},
-  author    = {Huang, Hongxiang and others},
-  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year      = {2026},
-  note      = {to appear}
+  title={DIMOS: Disentangling Instance-level Moving Object Segmentation},
+  author={Huang, Hongxiang and Ren, Hongwei and Lin, Xiaopeng and Huang, Yulong and Xie, Zeke and Cheng, Bojun},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={39806--39816},
+  year={2026}
 }
 ```
 
