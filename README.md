@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 ### MouseSIS
 
-> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://1drv.ms/f/c/850084079b43c32d/IgAvrIY9Q_0fTrVJX40nEm_RAS6abFl2_m0aOHU25vo9koc?e=KdmfTs)
+> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://hkustgz-my.sharepoint.com/:f:/g/personal/hhuang516_connect_hkust-gz_edu_cn/IgCRFn9bviSvR7Wx1BcPIp_SAcdfldbQ0425s2ZooNUKTeQ?e=ssO65X)
 
 Organize the dataset as follows:
 
@@ -67,7 +67,7 @@ datasets/MouseSIS/
 
 ### SEVD
 
-> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://1drv.ms/f/c/850084079b43c32d/IgAvrIY9Q_0fTrVJX40nEm_RAS6abFl2_m0aOHU25vo9koc?e=KdmfTs)
+> **Download link:** [Baidu Netdisk](https://pan.baidu.com/s/1xCFrJ_KrAwNrLH0-ugsfTQ?pwd=1234) (code: 1234) | [OneDrive](https://hkustgz-my.sharepoint.com/:f:/g/personal/hhuang516_connect_hkust-gz_edu_cn/IgCRFn9bviSvR7Wx1BcPIp_SAcdfldbQ0425s2ZooNUKTeQ?e=ssO65X)
 
 Organize the dataset as follows:
 
@@ -102,8 +102,8 @@ Pretrained weights for MouseSIS and SEVD are available via the following links (
 
 | Dataset   | Baidu Netdisk | OneDrive |
 |-----------|--------------|----------|
-| MouseSIS  | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://1drv.ms/f/c/850084079b43c32d/IgB4zS-Z9iWQSZEOAtWn9T5-Afy_9w-u5JKS1LsyTPamwSE?e=uRVR7m) |
-| SEVD      | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://1drv.ms/f/c/850084079b43c32d/IgB4zS-Z9iWQSZEOAtWn9T5-Afy_9w-u5JKS1LsyTPamwSE?e=uRVR7m) |
+| MouseSIS  | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://hkustgz-my.sharepoint.com/:f:/g/personal/hhuang516_connect_hkust-gz_edu_cn/IgANB0tRdoWQRb8ZR5gVYZqXAQRLjwqzkdK_UoE9rOPoo90?e=kxsacP) |
+| SEVD      | [Download](https://pan.baidu.com/s/14hxGJoKmyeSdlYTjYKYIfQ?pwd=1234) (code: 1234) | [Download](https://hkustgz-my.sharepoint.com/:f:/g/personal/hhuang516_connect_hkust-gz_edu_cn/IgANB0tRdoWQRb8ZR5gVYZqXAQRLjwqzkdK_UoE9rOPoo90?e=kxsacP) |
 
 Place the downloaded checkpoint files under `logs/<run_name>/ckpts/`.
 
@@ -189,13 +189,13 @@ If you find this work useful, please consider citing:
 
 ## License
 
-> [TBA]
+This project is released under the [MIT License](LICENSE).
 
 ---
 
 ## Acknowledgement
 
-This work is developed at HKUST(GZ).
+This work is developed at HKUST(GZ). We thank the authors of [EvInsMOS](https://github.com/danqu130/EvInsMOS) for their open-source codebase, which our implementation builds upon for several foundational modules.
 
 ---
 
